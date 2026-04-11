@@ -1,7 +1,8 @@
+import { useState, useEffect } from 'react';
 import AppLayout from '../../components/layout/AppLayout';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
-import { MOCK_APPLICATIONS } from '../../data/mockData';
+import api from '../../services/api';
 
 const STATUS_CONFIG = {
   applied:     { label: 'Applied',     color: 'blue' },
@@ -14,38 +15,55 @@ const STATUS_CONFIG = {
 const STEPS = ['applied', 'shortlisted', 'interview', 'offer'];
 
 export default function MyApplications() {
+  const [apps, setApps] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchApps = async () => {
+      try {
+        const data = await api.get('/applications/mine');
+        setApps(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchApps();
+  }, []);
+
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto space-y-5">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">My Applications</h1>
-          <p className="text-slate-500 text-sm mt-0.5">{MOCK_APPLICATIONS.length} applications tracked</p>
+          <p className="text-slate-500 text-sm mt-0.5">{apps.length} applications tracked</p>
         </div>
 
         <div className="space-y-4">
-          {MOCK_APPLICATIONS.map(app => {
+          {apps.map(app => {
             const cfg = STATUS_CONFIG[app.status];
             const stepIdx = STEPS.indexOf(app.status);
             const isRejected = app.status === 'rejected';
 
             return (
-              <Card key={app.id}>
+              <Card key={app._id}>
                 <div className="flex items-start gap-4 mb-4">
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
-                    style={{ backgroundColor: app.job.logoColor }}
+                    style={{ backgroundColor: app.jobId?.logoColor || '#6366f1' }}
                   >
-                    {app.job.logo}
+                    {app.jobId?.logo || '🚀'}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="font-semibold text-slate-800">{app.job.title}</h3>
-                        <p className="text-sm text-slate-500">{app.job.company} · {app.job.location}</p>
+                        <h3 className="font-semibold text-slate-800">{app.jobId?.title}</h3>
+                        <p className="text-sm text-slate-500">{app.jobId?.company} · {app.jobId?.location}</p>
                       </div>
                       <Badge color={cfg.color}>{cfg.label}</Badge>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">Applied {app.appliedDate} · {app.matchScore}% match</p>
+                    <p className="text-xs text-slate-400 mt-1">Applied {new Date(app.createdAt).toLocaleDateString()} · {app.matchScore}% match</p>
                   </div>
                 </div>
 

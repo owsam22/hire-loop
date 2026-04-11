@@ -1,12 +1,14 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import AppLayout from '../../components/layout/AppLayout';
 import StatCard from '../../components/ui/StatCard';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
-import { MOCK_STATS, MOCK_ANNOUNCEMENTS } from '../../data/mockData';
+import { MOCK_ANNOUNCEMENTS } from '../../data/mockData';
 import { Users, Building2, Briefcase, TrendingUp, Plus, CheckCircle, XCircle } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
+import api from '../../services/api';
 
 const placementTrend = [
   { month: 'Aug', placed: 12 },  { month: 'Sep', placed: 28 },
@@ -28,7 +30,11 @@ const pendingCompanies = [
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const stats = MOCK_STATS.admin;
+  const [stats, setStats] = useState({ totalStudents: 0, totalCompanies: 0, totalJobs: 0, placed: 0, placementRate: 0 });
+
+  useEffect(() => {
+    api.get('/admin/stats').then(setStats).catch(console.error);
+  }, []);
 
   return (
     <AppLayout>
@@ -51,7 +57,7 @@ export default function AdminDashboard() {
           <StatCard label="Companies" value={stats.totalCompanies} icon={<Building2 size={18} />} color="blue" trendLabel="5 pending approval" trend="up" />
           <StatCard label="Total Jobs" value={stats.totalJobs} icon={<Briefcase size={18} />} color="purple" />
           <StatCard label="Placed" value={stats.placed} icon={<CheckCircle size={18} />} color="emerald" trendLabel="This year" />
-          <StatCard label="Placement %" value={`${stats.placementRate}%`} icon={<TrendingUp size={18} />} color="amber" trend="up" trendLabel="+3% vs last year" />
+          <StatCard label="Placement %" value={`${stats.placementRate || 0}%`} icon={<TrendingUp size={18} />} color="amber" trend="up" trendLabel="+3% vs last year" />
         </div>
 
         {/* Charts row */}

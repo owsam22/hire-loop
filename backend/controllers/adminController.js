@@ -23,3 +23,37 @@ export const getStats = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Approve a job / payment
+// @route   PATCH /api/admin/jobs/:id/approve
+// @access  Private/Admin
+export const approveJob = async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+    job.isApprovedByAdmin = true;
+    job.paymentStatus = 'paid'; // Automatically consider paid if approved
+    
+    await job.save();
+    
+    res.json({ message: 'Job approved successfully', job });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get pending jobs
+// @route   GET /api/admin/jobs/pending
+// @access  Private/Admin
+export const getPendingJobs = async (req, res) => {
+  try {
+    const jobs = await Job.find({ isApprovedByAdmin: false })
+      .populate('recruiterId', 'name company email')
+      .sort({ createdAt: -1 });
+    res.json(jobs);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

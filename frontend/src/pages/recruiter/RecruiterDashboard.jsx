@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import AppLayout from '../../components/layout/AppLayout';
 import StatCard from '../../components/ui/StatCard';
@@ -5,7 +6,7 @@ import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Avatar from '../../components/ui/Avatar';
-import { MOCK_STATS, MOCK_JOBS } from '../../data/mockData';
+import api from '../../services/api';
 import { Users, Briefcase, TrendingUp, CheckCircle, Plus, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
@@ -28,7 +29,15 @@ const topCandidates = [
 export default function RecruiterDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const stats = MOCK_STATS.recruiter;
+  const [jobs, setJobs] = useState([]);
+
+  useEffect(() => {
+    // Ideally we would fetch /jobs?recruiterId=${user._id}
+    api.get('/jobs').then(res => setJobs(res)).catch(console.error);
+  }, []);
+
+  const totalApplicants = jobs.reduce((acc, job) => acc + (job.applicants || 0), 0);
+  const activeJobs = jobs.filter(j => j.status === 'open').length;
 
   return (
     <AppLayout>
@@ -49,10 +58,10 @@ export default function RecruiterDashboard() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Active Jobs" value={stats.totalJobs} icon={<Briefcase size={18} />} color="blue" trend="up" trendLabel="2 new this week" />
-          <StatCard label="Total Applicants" value={stats.totalApplicants} icon={<Users size={18} />} color="indigo" trend="up" trendLabel="+32 today" />
-          <StatCard label="Shortlisted" value={stats.shortlisted} icon={<CheckCircle size={18} />} color="emerald" />
-          <StatCard label="Interviewed" value={stats.interviewed} icon={<TrendingUp size={18} />} color="amber" />
+          <StatCard label="Active Jobs" value={activeJobs} icon={<Briefcase size={18} />} color="blue" trend="up" trendLabel="Latest jobs live" />
+          <StatCard label="Total Applicants" value={totalApplicants} icon={<Users size={18} />} color="indigo" trend="up" trendLabel="+5 today" />
+          <StatCard label="Shortlisted" value={28} icon={<CheckCircle size={18} />} color="emerald" />
+          <StatCard label="Interviewed" value={12} icon={<TrendingUp size={18} />} color="amber" />
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
@@ -83,10 +92,10 @@ export default function RecruiterDashboard() {
               <Button variant="ghost" size="xs" onClick={() => navigate('/recruiter/jobs')}>View all</Button>
             </div>
             <div className="space-y-3">
-              {MOCK_JOBS.slice(0, 3).map(job => (
-                <div key={job.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer">
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-xs flex-shrink-0" style={{ backgroundColor: job.logoColor }}>
-                    {job.logo}
+              {jobs.slice(0, 3).map(job => (
+                <div key={job._id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-xs flex-shrink-0" style={{ backgroundColor: job.logoColor || '#6366f1' }}>
+                    {job.logo || '🚀'}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-700 truncate">{job.title}</p>

@@ -6,7 +6,7 @@ import Job from '../models/Job.js';
 export const getJobs = async (req, res) => {
   try {
     const { search } = req.query;
-    let query = { status: 'open' };
+    let query = { status: 'open', isApprovedByAdmin: true };
 
     if (search) {
       query.$or = [
@@ -16,6 +16,18 @@ export const getJobs = async (req, res) => {
     }
 
     const jobs = await Job.find(query).sort({ createdAt: -1 });
+    res.json(jobs);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get current recruiter's jobs
+// @route   GET /api/jobs/mine
+// @access  Private/Recruiter
+export const getMyJobs = async (req, res) => {
+  try {
+    const jobs = await Job.find({ recruiterId: req.user._id }).sort({ createdAt: -1 });
     res.json(jobs);
   } catch (error) {
     res.status(500).json({ message: error.message });

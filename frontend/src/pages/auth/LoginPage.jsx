@@ -2,64 +2,44 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button';
-import { GraduationCap, Building2, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';
-
-const ROLES = [
-  {
-    id: 'student',
-    label: 'Student',
-    subtitle: 'Find jobs, analyze resume, practice interviews',
-    icon: GraduationCap,
-    gradient: 'from-indigo-500 to-violet-500',
-    bg: 'hover:border-indigo-300 hover:bg-indigo-50/50',
-    active: 'border-indigo-400 bg-indigo-50',
-    iconBg: 'bg-indigo-100 text-indigo-600',
-  },
-  {
-    id: 'recruiter',
-    label: 'Recruiter',
-    subtitle: 'Post jobs, review candidates, manage pipeline',
-    icon: Building2,
-    gradient: 'from-blue-500 to-cyan-500',
-    bg: 'hover:border-blue-300 hover:bg-blue-50/50',
-    active: 'border-blue-400 bg-blue-50',
-    iconBg: 'bg-blue-100 text-blue-600',
-  },
-  {
-    id: 'admin',
-    label: 'Placement Cell',
-    subtitle: 'Manage campus drives and platform data',
-    icon: ShieldCheck,
-    gradient: 'from-emerald-500 to-teal-500',
-    bg: 'hover:border-emerald-300 hover:bg-emerald-50/50',
-    active: 'border-emerald-400 bg-emerald-50',
-    iconBg: 'bg-emerald-100 text-emerald-600',
-  },
-];
+import { Sparkles, ArrowRight, UserCircle, KeyRound, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
-  const { login, loading } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const [selected, setSelected] = useState(null);
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleLogin = async () => {
-    if (!selected) return;
-    await login(selected);
-    const routes = { student: '/student', recruiter: '/recruiter', admin: '/admin' };
-    navigate(routes[selected]);
+  const handleLogin = async (e) => {
+    e?.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await login(email, password);
+      // Wait for auth state to update, then AppRoutes redirects automatically
+    } catch (err) {
+      setError(err.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const autoFill = (roleEmail) => {
+    setEmail(roleEmail);
+    setPassword('password123'); // From seed data
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 flex items-center justify-center p-4">
-      {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-100 rounded-full blur-3xl opacity-60" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-violet-100 rounded-full blur-3xl opacity-60" />
       </div>
 
       <div className="relative w-full max-w-md">
-
-        {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-xl shadow-indigo-200 mb-4">
             <span className="text-white font-bold text-xl">HL</span>
@@ -71,64 +51,64 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/80 border border-slate-100 p-6">
-          <p className="text-center text-slate-700 font-semibold mb-5">Sign in as</p>
+        <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/80 border border-slate-100 p-6 sm:p-8">
+          {error && (
+             <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-sm flex items-center gap-2">
+                <AlertCircle size={16} /> {error}
+             </div>
+          )}
 
-          <div className="space-y-3">
-            {ROLES.map(role => {
-              const Icon = role.icon;
-              const isActive = selected === role.id;
-              return (
-                <button
-                  key={role.id}
-                  onClick={() => setSelected(role.id)}
-                  className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-150 text-left ${
-                    isActive ? role.active : `border-slate-100 ${role.bg}`
-                  }`}
-                >
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${role.iconBg}`}>
-                    <Icon size={20} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate-800">{role.label}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{role.subtitle}</p>
-                  </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                    isActive ? 'border-indigo-500 bg-indigo-500' : 'border-slate-200'
-                  }`}>
-                    {isActive && <span className="w-2 h-2 bg-white rounded-full" />}
-                  </div>
-                </button>
-              );
-            })}
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
+              <div className="relative">
+                <UserCircle size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 focus:outline-none transition-all"
+                  placeholder="name@example.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+              <div className="relative">
+                <KeyRound size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 focus:outline-none transition-all"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              fullWidth
+              size="lg"
+              className="mt-2"
+              loading={loading}
+              icon={!loading && <ArrowRight size={16} />}
+            >
+              Sign In
+            </Button>
+          </form>
+
+          <div className="mt-8 border-t border-slate-100 pt-6">
+            <p className="text-xs text-slate-400 text-center mb-3 uppercase tracking-wider font-semibold">Demo Auto-Fill</p>
+            <div className="grid grid-cols-3 gap-2">
+               <Button variant="secondary" size="xs" onClick={() => autoFill('arjun@student.edu')}>Student</Button>
+               <Button variant="secondary" size="xs" onClick={() => autoFill('priya@google.com')}>Recruiter</Button>
+               <Button variant="secondary" size="xs" onClick={() => autoFill('admin@placement.edu')}>Admin</Button>
+            </div>
           </div>
-
-          <Button
-            fullWidth
-            size="lg"
-            className="mt-5"
-            loading={loading}
-            disabled={!selected}
-            onClick={handleLogin}
-            icon={!loading && <ArrowRight size={16} />}
-          >
-            {loading ? 'Signing in...' : 'Continue'}
-          </Button>
-
-          <p className="text-center text-xs text-slate-400 mt-4">
-            Demo mode — no credentials required
-          </p>
-        </div>
-
-        {/* Features hint */}
-        <div className="flex items-center justify-center gap-6 mt-6">
-          {['AI Resume Analysis', 'Job Matching', 'Mock Interviews'].map(f => (
-            <span key={f} className="text-xs text-slate-400 flex items-center gap-1">
-              <span className="w-1 h-1 bg-indigo-400 rounded-full" />
-              {f}
-            </span>
-          ))}
         </div>
       </div>
     </div>

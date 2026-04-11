@@ -14,7 +14,9 @@ const jobSchema = new mongoose.Schema({
   description: { type: String, required: true },
   status: { type: String, enum: ['open', 'closed'], default: 'open' },
   recruiterId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  applicants: { type: Number, default: 0 }
+  applicants: { type: Number, default: 0 },
+  paymentStatus: { type: String, enum: ['pending', 'paid'], default: 'pending' },
+  isApprovedByAdmin: { type: Boolean, default: false }
 }, { timestamps: true });
 
 export default mongoose.model('Job', jobSchema);

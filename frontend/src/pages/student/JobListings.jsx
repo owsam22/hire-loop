@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AppLayout from '../../components/layout/AppLayout';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
-import { MOCK_JOBS } from '../../data/mockData';
+import api from '../../services/api';
 import { MapPin, Clock, DollarSign, Users, TrendingUp, Search, SlidersHorizontal, Bookmark } from 'lucide-react';
 
 const FILTERS = ['All', 'High Match', 'Remote', 'Bangalore', 'Hyderabad'];
@@ -11,8 +11,24 @@ const FILTERS = ['All', 'High Match', 'Remote', 'Bangalore', 'Hyderabad'];
 export default function JobListings() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [search, setSearch] = useState('');
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = MOCK_JOBS.filter(j =>
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const data = await api.get('/jobs');
+        setJobs(data);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchJobs();
+  }, []);
+
+  const filtered = jobs.filter(j =>
     j.title.toLowerCase().includes(search.toLowerCase()) ||
     j.company.toLowerCase().includes(search.toLowerCase())
   );
