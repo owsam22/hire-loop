@@ -4,7 +4,7 @@ import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import api from '../services/api';
-import { MapPin, Clock, DollarSign, Users, Briefcase, Sparkles, ArrowRight } from 'lucide-react';
+import { MapPin, Clock, DollarSign, Sparkles, ArrowRight } from 'lucide-react';
 
 export default function LandingPage() {
   const [jobs, setJobs] = useState([]);
@@ -18,76 +18,71 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
+    <div className="landing-page">
       {/* Public Header */}
-      <header className="bg-white border-b border-slate-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <header className="public-header">
+        <div className="max-w-7xl flex justify-between items-center h-full">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-md">
-              <span className="text-white font-bold text-xs">HL</span>
-            </div>
+            <div className="avatar">HL</div>
             <span className="font-bold text-slate-800 text-lg">HireLoop</span>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" onClick={() => navigate('/login')}>Sign In</Button>
-            <Button onClick={() => navigate('/login')} icon={<ArrowRight size={14}/>}>Get Started</Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Sign In</Button>
+            <Button size="sm" onClick={() => navigate('/signup')} icon={<ArrowRight size={14}/>}>Get Started</Button>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-indigo-50/50 to-slate-50 pt-16 pb-12 px-4 text-center">
-        <div className="max-w-3xl mx-auto space-y-6">
-          <Badge color="indigo" className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 text-sm bg-white border border-indigo-100 shadow-sm">
-            <Sparkles size={14} className="text-indigo-500" />
+      <section className="hero-section">
+        <div className="max-w-3xl space-y-6">
+          <Badge color="indigo" className="hero-badge">
+            <Sparkles size={14} className="text-primary" />
             AI-Powered Campus Recruitment
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight text-balance">
+          <h1 className="hero-title">
             Find your dream role.
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
-              Zero friction.
-            </span>
+            <span className="gradient-text">Zero friction.</span>
           </h1>
-          <p className="text-slate-500 text-lg max-w-xl mx-auto">
+          <p className="text-slate-500 text-lg">
             Browse active listings, get matched using AI, and land your next role at top-tier companies.
           </p>
         </div>
       </section>
 
       {/* Job Feed */}
-      <main className="max-w-5xl mx-auto px-4 pb-20">
-        <div className="mb-6 flex items-center justify-between">
+      <main className="max-w-5xl px-4 pb-20 mt-6">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-slate-800">Latest Openings</h2>
           <span className="text-sm font-medium text-slate-500">{jobs.length} jobs available</span>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {jobs.map(job => (
-            <Card key={job._id} hover className="flex flex-col h-full !p-0">
-              <div className="p-5 flex-1">
+            <Card key={job._id} hover padding={false} className="job-card">
+              <div className="p-6">
                 <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg flex-shrink-0" style={{ backgroundColor: job.logoColor || '#6366f1' }}>
+                  <div className="job-logo" style={{ backgroundColor: job.logoColor || 'var(--primary)' }}>
                     {job.logo || '🚀'}
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800 leading-tight">{job.title}</h3>
-                    <p className="text-sm text-slate-500 mt-0.5">{job.company}</p>
+                    <h3 className="font-bold text-slate-800">{job.title}</h3>
+                    <p className="text-sm text-slate-500">{job.company}</p>
                     
-                    <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 text-xs text-slate-500 font-medium">
-                      <span className="flex items-center gap-1"><MapPin size={14} className="text-slate-400"/> {job.location}</span>
-                      <span className="flex items-center gap-1"><Clock size={14} className="text-slate-400"/> {job.type}</span>
-                      <span className="flex items-center gap-1"><DollarSign size={14} className="text-slate-400"/> {job.salary}</span>
+                    <div className="job-meta">
+                      <span className="flex items-center gap-1"><MapPin size={14}/> {job.location}</span>
+                      <span className="flex items-center gap-1"><Clock size={14}/> {job.type}</span>
+                      <span className="flex items-center gap-1"><DollarSign size={14}/> {job.salary}</span>
                     </div>
 
-                    <div className="flex flex-wrap gap-1.5 mt-4">
+                    <div className="flex gap-1 mt-4">
                        {job.skills.slice(0, 3).map(s => <Badge key={s} color="slate">{s}</Badge>)}
-                       {job.skills.length > 3 && <Badge color="slate">+{job.skills.length - 3}</Badge>}
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="border-t border-slate-50 bg-slate-50/50 p-4">
+              <div className="card-footer p-4 border-t">
                 <Button fullWidth onClick={() => navigate('/login')}>
                   Login to Apply
                 </Button>
@@ -96,12 +91,24 @@ export default function LandingPage() {
           ))}
 
           {jobs.length === 0 && (
-            <div className="col-span-full py-12 text-center text-slate-500 bg-white rounded-2xl border border-slate-100">
+            <div className="col-span-full py-12 text-center text-slate-500 bg-white rounded-xl">
               No public jobs available right now.
             </div>
           )}
         </div>
       </main>
+      
+      <style>{`
+        .landing-page { min-height: 100vh; background: var(--slate-50); }
+        .public-header { background: var(--white); border-bottom: 1px solid var(--slate-100); height: 64px; padding: 0 var(--sp-6); sticky; top: 0; z-index: 50; }
+        .hero-section { background: linear-gradient(to bottom, #eff6ff, var(--slate-50)); padding: 4rem var(--sp-4) 3rem; text-align: center; display: flex; justify-content: center; }
+        .hero-badge { background: var(--white); border: 1px solid var(--primary-light); box-shadow: var(--shadow-sm); padding: 0.5rem 1rem; }
+        .hero-title { font-size: 3rem; font-weight: 800; color: var(--slate-800); line-height: 1.1; margin-bottom: 1rem; }
+        .job-card { display: flex; flex-direction: column; }
+        .job-logo { width: 48px; height: 48px; border-radius: var(--rounded-xl); display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: bold; font-size: 20px; flex-shrink: 0; }
+        .job-meta { display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.75rem; color: var(--slate-500); }
+        .card-footer { background: var(--slate-50); border-top: 1px solid var(--slate-100); }
+      `}</style>
     </div>
   );
 }

@@ -38,15 +38,14 @@ export default function AdminDashboard() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 max-w-7xl mx-auto">
-
+      <div className="dash-container max-w-7xl flex flex-col gap-6">
         {/* Header */}
-        <div className="flex items-start justify-between">
+        <div className="flex justify-between items-start">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">
               Placement Cell Dashboard
             </h1>
-            <p className="text-slate-500 text-sm mt-0.5">{user?.college} · Academic Year 2023-24</p>
+            <p className="text-slate-500 text-sm">{user?.college} · Academic Year 2023-24</p>
           </div>
           <Button icon={<Plus size={15} />} size="sm">New Announcement</Button>
         </div>
@@ -62,45 +61,46 @@ export default function AdminDashboard() {
 
         {/* Charts row */}
         <div className="grid lg:grid-cols-3 gap-6">
-
-          {/* Placement trend */}
           <div className="lg:col-span-2">
             <Card>
-              <p className="font-semibold text-slate-800 mb-4">Placement Trend (2023-24)</p>
-              <ResponsiveContainer width="100%" height={200}>
-                <AreaChart data={placementTrend}>
-                  <defs>
-                    <linearGradient id="placedGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                  <Tooltip contentStyle={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, fontSize: 13 }} />
-                  <Area type="monotone" dataKey="placed" stroke="#6366f1" strokeWidth={2.5} fill="url(#placedGrad)" dot={{ r: 4, fill: '#6366f1' }} />
-                </AreaChart>
-              </ResponsiveContainer>
+              <p className="font-semibold text-slate-800 mb-6">Placement Trend (2023-24)</p>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height={200}>
+                  <AreaChart data={placementTrend}>
+                    <defs>
+                      <linearGradient id="placedGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                    <Tooltip contentStyle={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, fontSize: 13 }} />
+                    <Area type="monotone" dataKey="placed" stroke="var(--primary)" strokeWidth={2.5} fill="url(#placedGrad)" dot={{ r: 4, fill: 'var(--primary)' }} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </Card>
           </div>
 
-          {/* Branch distribution */}
           <Card>
             <p className="font-semibold text-slate-800 mb-4">Branch-wise Placements</p>
-            <ResponsiveContainer width="100%" height={160}>
-              <PieChart>
-                <Pie data={branchData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
-                  {branchData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Pie>
-                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="chart-container-center">
+              <ResponsiveContainer width="100%" height={160}>
+                <PieChart>
+                  <Pie data={branchData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
+                    {branchData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="legend mt-4 flex flex-wrap gap-3">
               {branchData.map((b, i) => (
                 <div key={b.name} className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[i] }} />
-                  <span className="text-xs text-slate-500">{b.name} ({b.value}%)</span>
+                  <span className="legend-dot" style={{ backgroundColor: COLORS[i] }} />
+                  <span className="text-xs text-slate-500 font-medium">{b.name} ({b.value}%)</span>
                 </div>
               ))}
             </div>
@@ -109,28 +109,26 @@ export default function AdminDashboard() {
 
         {/* Bottom row */}
         <div className="grid lg:grid-cols-2 gap-6">
-
-          {/* Pending company approvals */}
           <Card>
-            <div className="flex items-center justify-between mb-4">
-              <p className="font-semibold text-slate-800">Pending Approvals</p>
+            <div className="flex justify-between items-center mb-6">
+              <p className="font-semibold text-slate-800">Pending Company Approvals</p>
               <Badge color="amber" dot>{pendingCompanies.length} pending</Badge>
             </div>
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {pendingCompanies.map(c => (
-                <div key={c.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                  <div className="w-9 h-9 bg-white rounded-lg border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-sm flex-shrink-0">
+                <div key={c.id} className="list-item-mini">
+                  <div className="item-initials">
                     {c.name[0]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800">{c.name}</p>
+                    <p className="text-sm font-bold text-slate-800">{c.name}</p>
                     <p className="text-xs text-slate-400">{c.sector} · Applied {c.applied}</p>
                   </div>
                   <div className="flex gap-2">
-                    <button className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors">
+                    <button className="action-btn success">
                       <CheckCircle size={14} />
                     </button>
-                    <button className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                    <button className="action-btn error">
                       <XCircle size={14} />
                     </button>
                   </div>
@@ -139,23 +137,22 @@ export default function AdminDashboard() {
             </div>
           </Card>
 
-          {/* Announcements */}
           <Card>
-            <div className="flex items-center justify-between mb-4">
-              <p className="font-semibold text-slate-800">Announcements</p>
+            <div className="flex justify-between items-center mb-6">
+              <p className="font-semibold text-slate-800">Global Announcements</p>
               <Button size="xs" icon={<Plus size={12} />}>New</Button>
             </div>
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {MOCK_ANNOUNCEMENTS.map(a => {
                 const tagColor = a.tag === 'urgent' ? 'red' : a.tag === 'event' ? 'purple' : 'blue';
                 return (
-                  <div key={a.id} className="p-3 bg-slate-50 rounded-xl">
-                    <div className="flex items-center gap-2 mb-1">
+                  <div key={a.id} className="announcement-mini">
+                    <div className="flex justify-between items-start mb-2">
                       <Badge color={tagColor}>{a.tag}</Badge>
-                      <span className="text-xs text-slate-400">{a.date}</span>
+                      <span className="text-xs text-slate-400 font-medium">{a.date}</span>
                     </div>
-                    <p className="text-sm font-semibold text-slate-700">{a.title}</p>
-                    <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">{a.body}</p>
+                    <p className="text-sm font-bold text-slate-700">{a.title}</p>
+                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">{a.body}</p>
                   </div>
                 );
               })}
@@ -163,6 +160,20 @@ export default function AdminDashboard() {
           </Card>
         </div>
       </div>
+
+      <style>{`
+        .dash-container { width: 100%; }
+        .chart-container-center { display: flex; justify-content: center; margin: 1rem 0; }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .list-item-mini { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: var(--rounded-lg); background: var(--slate-50); }
+        .item-initials { width: 36px; height: 36px; background: #fff; border: 1px solid var(--slate-200); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--slate-700); font-size: 0.875rem; flex-shrink: 0; }
+        .action-btn { p: 0.5rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: 0.2s; }
+        .action-btn.success { background: #d1fae5; color: #065f46; }
+        .action-btn.success:hover { background: #a7f3d0; }
+        .action-btn.error { background: #fee2e2; color: #991b1b; }
+        .action-btn.error:hover { background: #fecaca; }
+        .announcement-mini { padding: 1rem; background: var(--slate-50); border-radius: var(--rounded-xl); }
+      `}</style>
     </AppLayout>
   );
 }

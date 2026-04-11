@@ -35,23 +35,22 @@ export default function JobListings() {
 
   return (
     <AppLayout>
-      <div className="max-w-5xl mx-auto space-y-5">
-
+      <div className="max-w-5xl flex flex-col gap-6">
         {/* Header */}
-        <div>
+        <div className="page-header">
           <h1 className="text-2xl font-bold text-slate-800">Browse Jobs</h1>
-          <p className="text-slate-500 text-sm mt-0.5">{filtered.length} opportunities matching your profile</p>
+          <p className="text-slate-500 text-sm">{filtered.length} opportunities matching your profile</p>
         </div>
 
         {/* Search + filters */}
-        <div className="flex gap-3 flex-wrap">
-          <div className="relative flex-1 min-w-48">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        <div className="filter-controls flex gap-3">
+          <div className="input-with-icon flex-1">
+            <Search size={16} className="icon" />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search role or company..."
-              className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-700"
+              className="input"
             />
           </div>
           <Button variant="secondary" icon={<SlidersHorizontal size={15} />}>Filters</Button>
@@ -62,11 +61,7 @@ export default function JobListings() {
             <button
               key={f}
               onClick={() => setActiveFilter(f)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
-                activeFilter === f
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-300'
-              }`}
+              className={clsx('filter-tab', activeFilter === f && 'active')}
             >
               {f}
             </button>
@@ -74,29 +69,29 @@ export default function JobListings() {
         </div>
 
         {/* Job cards */}
-        <div className="space-y-3">
+        <div className="job-list flex flex-col gap-3">
           {filtered.map(job => (
-            <Card key={job.id} hover className="!p-0 overflow-hidden">
+            <Card key={job.id} hover padding={false} className="job-item-card overflow-hidden">
               <div className="p-5">
                 <div className="flex items-start gap-4">
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
-                    style={{ backgroundColor: job.logoColor }}
+                    className="item-logo"
+                    style={{ backgroundColor: job.logoColor || 'var(--primary)' }}
                   >
-                    {job.logo}
+                    {job.logo || '🚀'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
+                    <div className="flex justify-between items-start gap-2">
                       <div>
                         <h3 className="font-semibold text-slate-800">{job.title}</h3>
-                        <p className="text-sm text-slate-500 mt-0.5">{job.company}</p>
+                        <p className="text-sm text-slate-500">{job.company}</p>
                       </div>
-                      <button className="text-slate-300 hover:text-indigo-500 transition-colors flex-shrink-0 mt-0.5">
+                      <button className="btn-bookmark">
                         <Bookmark size={18} />
                       </button>
                     </div>
 
-                    <div className="flex flex-wrap gap-3 mt-3 text-xs text-slate-500">
+                    <div className="item-meta flex flex-wrap gap-4 mt-3">
                       <span className="flex items-center gap-1"><MapPin size={12} />{job.location}</span>
                       <span className="flex items-center gap-1"><Clock size={12} />{job.type}</span>
                       <span className="flex items-center gap-1"><DollarSign size={12} />{job.salary}</span>
@@ -111,17 +106,17 @@ export default function JobListings() {
               </div>
 
               {/* Match score footer */}
-              <div className="border-t border-slate-50 bg-slate-50/60 px-5 py-3 flex items-center justify-between">
+              <div className="card-footer px-5 py-3 border-t flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <TrendingUp size={14} className={job.matchScore >= 75 ? 'text-emerald-500' : 'text-amber-500'} />
+                  <TrendingUp size={14} className={job.matchScore >= 75 ? 'text-success' : 'text-warning'} />
                   <span className="text-xs text-slate-500">Match score</span>
-                  <div className="w-20 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div className="score-track">
                     <div
-                      className={`h-full rounded-full ${job.matchScore >= 75 ? 'bg-emerald-500' : 'bg-amber-400'}`}
+                      className={clsx('score-bar', job.matchScore >= 75 ? 'success' : 'warning')}
                       style={{ width: `${job.matchScore}%` }}
                     />
                   </div>
-                  <span className={`text-xs font-bold ${job.matchScore >= 75 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                  <span className={clsx('text-xs font-bold', job.matchScore >= 75 ? 'text-success' : 'text-warning')}>
                     {job.matchScore}%
                   </span>
                 </div>
@@ -134,6 +129,31 @@ export default function JobListings() {
           ))}
         </div>
       </div>
+
+      <style>{`
+        .input-with-icon { position: relative; width: 100%; }
+        .input-with-icon .icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--slate-400); }
+        .input-with-icon .input { padding-left: 2.5rem; width: 100%; }
+        
+        .filter-tab { padding: 0.375rem 1rem; border-radius: 99px; font-size: 0.75rem; font-weight: 500; border: 1px solid var(--slate-200); background: var(--white); color: var(--slate-600); transition: 0.2s; }
+        .filter-tab:hover { border-color: var(--primary); color: var(--primary); }
+        .filter-tab.active { background: var(--primary); color: var(--white); border-color: var(--primary); box-shadow: var(--shadow-sm); }
+        
+        .job-item-card { display: flex; flex-direction: column; }
+        .item-logo { width: 48px; height: 48px; border-radius: var(--rounded-lg); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 18px; flex-shrink: 0; }
+        .btn-bookmark { color: var(--slate-300); transition: color 0.2s; }
+        .btn-bookmark:hover { color: var(--primary); }
+        .item-meta { font-size: 0.75rem; color: var(--slate-500); }
+        .score-track { width: 80px; height: 6px; background: var(--slate-100); border-radius: 99px; overflow: hidden; }
+        .score-bar { height: 100%; border-radius: 99px; }
+        .score-bar.success { background: var(--success); }
+        .score-bar.warning { background: var(--warning); }
+        .text-success { color: var(--success); }
+        .text-warning { color: var(--warning); }
+        .card-footer { background: var(--slate-50); }
+      `}</style>
     </AppLayout>
   );
 }
+
+import clsx from 'clsx';

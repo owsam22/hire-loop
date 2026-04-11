@@ -34,50 +34,50 @@ export default function MyApplications() {
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto space-y-5">
+      <div className="max-w-3xl flex flex-col gap-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">My Applications</h1>
-          <p className="text-slate-500 text-sm mt-0.5">{apps.length} applications tracked</p>
+          <p className="text-slate-500 text-sm">{apps.length} applications tracked</p>
         </div>
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {apps.map(app => {
             const cfg = STATUS_CONFIG[app.status];
             const stepIdx = STEPS.indexOf(app.status);
             const isRejected = app.status === 'rejected';
 
             return (
-              <Card key={app._id}>
-                <div className="flex items-start gap-4 mb-4">
+              <Card key={app._id} className="application-card">
+                <div className="flex gap-4 mb-6">
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
-                    style={{ backgroundColor: app.jobId?.logoColor || '#6366f1' }}
+                    className="item-logo"
+                    style={{ backgroundColor: app.jobId?.logoColor || 'var(--primary)' }}
                   >
                     {app.jobId?.logo || '🚀'}
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-semibold text-slate-800">{app.jobId?.title}</h3>
+                        <h3 className="font-bold text-slate-800">{app.jobId?.title}</h3>
                         <p className="text-sm text-slate-500">{app.jobId?.company} · {app.jobId?.location}</p>
                       </div>
                       <Badge color={cfg.color}>{cfg.label}</Badge>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">Applied {new Date(app.createdAt).toLocaleDateString()} · {app.matchScore}% match</p>
+                    <p className="text-xs text-slate-400 mt-2">Applied {new Date(app.createdAt).toLocaleDateString()} · {app.matchScore}% match</p>
                   </div>
                 </div>
 
                 {/* Progress stepper */}
                 {!isRejected ? (
-                  <div className="flex items-center gap-1 mt-2">
+                  <div className="stepper">
                     {STEPS.map((step, i) => {
                       const done = i <= stepIdx;
                       const current = i === stepIdx;
                       const label = STATUS_CONFIG[step]?.label;
                       return (
-                        <div key={step} className="flex-1 flex flex-col items-center gap-1">
-                          <div className={`w-full h-1.5 rounded-full transition-all ${done ? 'bg-indigo-500' : 'bg-slate-100'}`} />
-                          <span className={`text-xs font-medium ${current ? 'text-indigo-600' : done ? 'text-slate-500' : 'text-slate-300'}`}>
+                        <div key={step} className="step">
+                          <div className={clsx('step-bar', done && 'done')} />
+                          <span className={clsx('step-label', current && 'current', done && !current && 'done-label')}>
                             {label}
                           </span>
                         </div>
@@ -85,15 +85,36 @@ export default function MyApplications() {
                     })}
                   </div>
                 ) : (
-                  <div className="mt-2 p-2.5 bg-red-50 rounded-xl text-xs text-red-500 font-medium text-center">
+                  <div className="rejection-alert">
                     Application rejected · Check feedback in AI tools
                   </div>
                 )}
               </Card>
             );
           })}
+          
+          {apps.length === 0 && !loading && (
+            <div className="empty-state">
+               <p>No applications to show.</p>
+            </div>
+          )}
         </div>
       </div>
+
+      <style>{`
+        .item-logo { width: 48px; height: 48px; border-radius: var(--rounded-lg); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 18px; flex-shrink: 0; }
+        .stepper { display: flex; gap: 0.25rem; }
+        .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+        .step-bar { width: 100%; height: 6px; background: var(--slate-100); border-radius: 99px; transition: 0.3s; }
+        .step-bar.done { background: var(--primary); }
+        .step-label { font-size: 0.75rem; font-weight: 600; color: var(--slate-300); }
+        .step-label.current { color: var(--primary); }
+        .step-label.done-label { color: var(--slate-600); }
+        .rejection-alert { padding: 0.75rem; background: #fee2e2; border-radius: var(--rounded-lg); color: #b91c1c; font-size: 0.75rem; font-weight: 700; text-align: center; }
+        .empty-state { padding: 3rem; text-align: center; color: var(--slate-400); background: var(--white); border-radius: var(--rounded-2xl); border: 1px dashed var(--slate-200); }
+      `}</style>
     </AppLayout>
   );
 }
+
+import clsx from 'clsx';

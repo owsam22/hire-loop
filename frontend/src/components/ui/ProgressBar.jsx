@@ -1,37 +1,46 @@
+import clsx from 'clsx';
+
 export default function ProgressBar({ value = 0, max = 100, color = 'indigo', size = 'md', showLabel = false, label }) {
   const pct = Math.min(100, Math.max(0, (value / max) * 100));
 
-  const colors = {
-    indigo: 'bg-indigo-500',
-    emerald: 'bg-emerald-500',
-    amber: 'bg-amber-500',
-    red: 'bg-red-500',
-    blue: 'bg-blue-500',
-    purple: 'bg-purple-500',
-    gradient: 'bg-gradient-to-r from-indigo-500 to-violet-500',
-  };
-
-  const heights = {
-    xs: 'h-1',
-    sm: 'h-1.5',
-    md: 'h-2',
-    lg: 'h-3',
-  };
-
   return (
-    <div className="w-full">
+    <div className="progress-container">
       {(showLabel || label) && (
-        <div className="flex justify-between mb-1.5">
+        <div className="progress-header">
           <span className="text-xs text-slate-500">{label}</span>
           <span className="text-xs font-semibold text-slate-700">{Math.round(pct)}%</span>
         </div>
       )}
-      <div className={`w-full ${heights[size]} bg-slate-100 rounded-full overflow-hidden`}>
+      <div className={clsx('progress-track', `track-${size}`)}>
         <div
-          className={`${heights[size]} ${colors[color]} rounded-full transition-all duration-700 ease-out`}
+          className={clsx('progress-bar', `bar-${color}`, `bar-${size}`)}
           style={{ width: `${pct}%` }}
         />
       </div>
+
+      <style>{`
+        .progress-container { width: 100%; }
+        .progress-header { display: flex; justify-content: space-between; margin-bottom: 0.375rem; }
+        .progress-track { width: 100%; background: var(--slate-100); border-radius: var(--rounded-full); overflow: hidden; }
+        .progress-bar { transition: width 0.7s ease-out; border-radius: var(--rounded-full); }
+        
+        .track-xs { height: 4px; }
+        .track-sm { height: 6px; }
+        .track-md { height: 8px; }
+        .track-lg { height: 12px; }
+
+        .bar-xs { height: 4px; }
+        .bar-sm { height: 6px; }
+        .bar-md { height: 8px; }
+        .bar-lg { height: 12px; }
+
+        .bar-indigo { background: var(--primary); }
+        .bar-emerald { background: var(--success); }
+        .bar-amber { background: var(--warning); }
+        .bar-red { background: var(--error); }
+        .bar-blue { background: var(--info); }
+        .bar-gradient { background: linear-gradient(to right, var(--primary), var(--accent)); }
+      `}</style>
     </div>
   );
 }

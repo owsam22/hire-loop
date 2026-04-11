@@ -32,7 +32,6 @@ export default function RecruiterDashboard() {
   const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
-    // Ideally we would fetch /jobs?recruiterId=${user._id}
     api.get('/jobs').then(res => setJobs(res)).catch(console.error);
   }, []);
 
@@ -41,15 +40,14 @@ export default function RecruiterDashboard() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 max-w-7xl mx-auto">
-
+      <div className="dash-container max-w-7xl flex flex-col gap-6">
         {/* Header */}
-        <div className="flex items-start justify-between">
+        <div className="flex justify-between items-start">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">
               Welcome back, <span className="gradient-text">{user?.name?.split(' ')[0]} 👋</span>
             </h1>
-            <p className="text-slate-500 text-sm mt-0.5">{user?.company} · {user?.designation}</p>
+            <p className="text-slate-500 text-sm">{user?.company} · {user?.designation}</p>
           </div>
           <Button onClick={() => navigate('/recruiter/post-job')} icon={<Plus size={15} />} size="sm">
             Post a Job
@@ -65,40 +63,41 @@ export default function RecruiterDashboard() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-
           {/* Hiring pipeline chart */}
           <div className="lg:col-span-2">
             <Card>
-              <p className="font-semibold text-slate-800 mb-4">Hiring Pipeline</p>
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={pipelineData} barSize={36}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                  <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                  <Tooltip
-                    contentStyle={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, fontSize: 13, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
-                    cursor={{ fill: '#f8fafc' }}
-                  />
-                  <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <p className="font-semibold text-slate-800 mb-6">Hiring Pipeline</p>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={pipelineData} barSize={36}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                    <Tooltip
+                      contentStyle={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, fontSize: 13, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
+                      cursor={{ fill: 'var(--slate-50)' }}
+                    />
+                    <Bar dataKey="count" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </Card>
           </div>
 
           {/* My Active Jobs */}
           <Card>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex justify-between items-center mb-6">
               <p className="font-semibold text-slate-800">Active Jobs</p>
               <Button variant="ghost" size="xs" onClick={() => navigate('/recruiter/jobs')}>View all</Button>
             </div>
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {jobs.slice(0, 3).map(job => (
-                <div key={job._id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer">
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-xs flex-shrink-0" style={{ backgroundColor: job.logoColor || '#6366f1' }}>
+                <div key={job._id} className="list-item-mini" onClick={() => navigate('/recruiter/jobs')}>
+                  <div className="item-logo sm" style={{ backgroundColor: job.logoColor || 'var(--primary)' }}>
                     {job.logo || '🚀'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-700 truncate">{job.title}</p>
+                    <p className="text-sm font-bold text-slate-700 truncate">{job.title}</p>
                     <p className="text-xs text-slate-400">{job.applicants} applicants</p>
                   </div>
                   <Badge color="emerald" dot>Open</Badge>
@@ -110,27 +109,27 @@ export default function RecruiterDashboard() {
 
         {/* Top Candidates */}
         <Card padding={false}>
-          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="card-header p-5 border-b flex justify-between items-center">
             <p className="font-semibold text-slate-800">Top Candidates</p>
             <Button variant="ghost" size="xs" onClick={() => navigate('/recruiter/applicants')} icon={<ArrowRight size={14} />}>All applicants</Button>
           </div>
-          <div className="divide-y divide-slate-50">
+          <div className="list-container">
             {topCandidates.map((c, i) => (
-              <div key={c.id} className="px-5 py-3.5 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                <span className="text-xs font-bold text-slate-300 w-5 text-center flex-shrink-0">#{i+1}</span>
+              <div key={c.id} className="list-item p-4 flex items-center gap-4 border-b">
+                <span className="text-xs font-black text-slate-200 w-6 text-center">0{i+1}</span>
                 <Avatar name={c.name} size="sm" color={['indigo','blue','purple','emerald'][i % 4]} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-800">{c.name}</p>
+                  <p className="text-sm font-bold text-slate-800">{c.name}</p>
                   <p className="text-xs text-slate-400">{c.branch} · CGPA {c.cgpa}</p>
                 </div>
-                <div className="hidden sm:flex gap-1">
+                <div className="hidden-mobile flex gap-1">
                   {c.skills.map(s => <Badge key={s} color="slate">{s}</Badge>)}
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${c.match}%` }} />
+                <div className="flex items-center gap-3">
+                  <div className="mini-track">
+                     <div className="mini-bar" style={{ width: `${c.match}%` }} />
                   </div>
-                  <span className="text-xs font-bold text-indigo-600">{c.match}%</span>
+                  <span className="text-xs font-bold text-primary">{c.match}%</span>
                 </div>
                 <Button size="xs" variant="outline">Shortlist</Button>
               </div>
@@ -138,6 +137,16 @@ export default function RecruiterDashboard() {
           </div>
         </Card>
       </div>
+
+      <style>{`
+        .dash-container { width: 100%; }
+        .chart-container { margin-bottom: -10px; }
+        .list-item-mini { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: var(--rounded-lg); background: var(--slate-50); cursor: pointer; transition: 0.2s; }
+        .list-item-mini:hover { background: var(--slate-100); }
+        .item-logo.sm { width: 36px; height: 36px; border-radius: 8px; font-size: 14px; }
+        .mini-track { width: 60px; height: 4px; background: var(--slate-100); border-radius: 99px; overflow: hidden; }
+        .mini-bar { height: 100%; background: var(--primary); }
+      `}</style>
     </AppLayout>
   );
 }

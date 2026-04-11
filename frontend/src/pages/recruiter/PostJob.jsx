@@ -35,7 +35,7 @@ export default function PostJob() {
       const jobId = jobData._id;
 
       // 2. Process fake payment
-      const cardLast4 = paymentForm.cardNumber.replace(/\s/g, '').slice(-4);
+      const cardLast4 = paymentForm.cardNumber.replace(/\\s/g, '').slice(-4);
       await api.post('/payments/process', {
         jobId,
         amount: 250, // $250 Mock listing fee
@@ -54,13 +54,13 @@ export default function PostJob() {
   };
 
   const Field = ({ label, id, type = 'text', val, setter, ...props }) => (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1.5">{label}</label>
+    <div className="input-group">
+      <label className="label">{label}</label>
       <input
         type={type}
         value={val}
         onChange={e => setter(id, e.target.value)}
-        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-700"
+        className="input"
         {...props}
       />
     </div>
@@ -69,19 +69,25 @@ export default function PostJob() {
   if (submitted) {
     return (
       <AppLayout>
-        <div className="max-w-lg mx-auto mt-16 text-center">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle size={32} className="text-blue-500" />
+        <div className="success-screen">
+          <div className="success-icon-container">
+            <CheckCircle size={32} />
           </div>
-          <h2 className="text-2xl font-bold text-slate-800">Payment Received!</h2>
-          <p className="text-slate-500 text-sm mt-2">Your job posting is pending Admin Approval. You will be notified once it is live.</p>
-          <Button className="mt-6" onClick={() => {
+          <h2 className="success-title">Payment Received!</h2>
+          <p className="success-subtitle">Your job posting is pending Admin Approval. You will be notified once it is live.</p>
+          <Button className="mt-8" onClick={() => {
              setSubmitted(false);
              setCheckout(false);
              setForm({title: '', company: '', location: '', type: 'Full-time', salary: '', cgpa: '', skills: '', description: '', branches: ''});
              setPaymentForm({name: '', cardNumber: '', expiry: '', cvc: ''});
           }}>Post Another Job</Button>
         </div>
+        <style>{`
+          .success-screen { max-width: 480px; margin: 4rem auto 0; text-align: center; }
+          .success-icon-container { width: 64px; height: 64px; background: #dcfce7; color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+          .success-title { font-size: 1.5rem; font-weight: 800; color: var(--slate-800); }
+          .success-subtitle { font-size: 0.875rem; color: var(--slate-500); margin-top: 0.5rem; }
+        `}</style>
       </AppLayout>
     );
   }
@@ -89,22 +95,22 @@ export default function PostJob() {
   if (checkout) {
     return (
       <AppLayout>
-        <div className="max-w-xl mx-auto space-y-6">
+        <div className="max-w-xl flex flex-col gap-6">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">Checkout</h1>
-            <p className="text-slate-500 text-sm mt-0.5">Pay the listing fee to publish your job</p>
+            <p className="text-slate-500 text-sm">Pay the listing fee to publish your job</p>
           </div>
           
           <Card>
-            <div className="flex justify-between items-center mb-6 pb-6 border-b border-slate-100">
+            <div className="checkout-sum flex justify-between items-center mb-6 pb-6 border-b">
                <div>
-                  <h3 className="font-semibold text-slate-800">Job Listing Fee</h3>
-                  <p className="text-xs text-slate-500">{form.title} at {form.company}</p>
+                  <h3 className="font-bold text-slate-800">Job Listing Fee</h3>
+                  <p className="text-xs text-slate-500">{form.title || 'Untitled Role'} at {form.company || 'Company'}</p>
                </div>
-               <div className="text-xl font-bold text-slate-800">$250.00</div>
+               <div className="text-2xl font-black text-slate-800">$250.00</div>
             </div>
 
-            <form onSubmit={handleCheckoutSubmit} className="space-y-4">
+            <form onSubmit={handleCheckoutSubmit} className="flex flex-col gap-4">
                <Field label="Name on Card" id="name" val={paymentForm.name} setter={setPay} placeholder="John Doe" required />
                <Field label="Card Number" id="cardNumber" val={paymentForm.cardNumber} setter={setPay} placeholder="0000 0000 0000 0000" maxLength={19} required />
                <div className="grid grid-cols-2 gap-4">
@@ -112,9 +118,9 @@ export default function PostJob() {
                   <Field label="CVC" id="cvc" type="password" val={paymentForm.cvc} setter={setPay} placeholder="123" maxLength={4} required />
                </div>
                
-               <div className="pt-4 flex gap-3">
+               <div className="flex gap-4 mt-4">
                   <Button type="button" variant="outline" className="flex-1" onClick={() => setCheckout(false)}>Cancel</Button>
-                  <Button type="submit" loading={loading} className="flex-1 text-center">Pay $250.00</Button>
+                  <Button type="submit" loading={loading} className="flex-1">Pay $250.00</Button>
                </div>
             </form>
           </Card>
@@ -125,24 +131,24 @@ export default function PostJob() {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto space-y-5">
+      <div className="max-w-2xl flex flex-col gap-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Post a Job</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Fill in the details below to publish your opening</p>
+          <p className="text-slate-500 text-sm">Fill in the details below to publish your opening</p>
         </div>
 
         <Card>
-          <p className="font-semibold text-slate-700 mb-4">Job Details</p>
+          <p className="section-title mb-4">Job Details</p>
           <div className="grid sm:grid-cols-2 gap-4">
             <Field label="Job Title" id="title" val={form.title} setter={set} placeholder="e.g. Software Engineer" />
             <Field label="Company" id="company" val={form.company} setter={set} placeholder="e.g. Google" />
             <Field label="Location" id="location" val={form.location} setter={set} placeholder="e.g. Bangalore / Remote" />
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Employment Type</label>
+            <div className="input-group">
+              <label className="label">Employment Type</label>
               <select
                 value={form.type}
                 onChange={e => set('type', e.target.value)}
-                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-700"
+                className="input select"
               >
                 {['Full-time', 'Internship', 'Contract'].map(t => <option key={t}>{t}</option>)}
               </select>
@@ -153,15 +159,15 @@ export default function PostJob() {
         </Card>
 
         <Card>
-          <p className="font-semibold text-slate-700 mb-4">Requirements</p>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Required Skills <span className="text-slate-400">(comma separated)</span></label>
+          <p className="section-title mb-4">Requirements</p>
+          <div className="flex flex-col gap-4">
+            <div className="input-group">
+              <label className="label">Required Skills <span className="label-note">(comma separated)</span></label>
               <input
                 value={form.skills}
                 onChange={e => set('skills', e.target.value)}
                 placeholder="React, Node.js, Python, SQL..."
-                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-700"
+                className="input"
               />
               {form.skills && (
                 <div className="flex flex-wrap gap-1.5 mt-2">
@@ -171,26 +177,26 @@ export default function PostJob() {
                 </div>
               )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Eligible Branches <span className="text-slate-400">(comma separated)</span></label>
+            <div className="input-group">
+              <label className="label">Eligible Branches <span className="label-note">(comma separated)</span></label>
               <input
                 value={form.branches}
                 onChange={e => set('branches', e.target.value)}
                 placeholder="CS, IT, ECE..."
-                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-700"
+                className="input"
               />
             </div>
           </div>
         </Card>
 
         <Card>
-          <p className="font-semibold text-slate-700 mb-4">Job Description</p>
+          <p className="section-title mb-4">Job Description</p>
           <textarea
             rows={6}
             value={form.description}
             onChange={e => set('description', e.target.value)}
             placeholder="Describe the role, responsibilities, and what you're looking for..."
-            className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-700 resize-none"
+            className="input textarea"
           />
         </Card>
 
@@ -198,6 +204,13 @@ export default function PostJob() {
           Proceed to Payment ($250)
         </Button>
       </div>
+
+      <style>{`
+        .section-title { font-size: 0.875rem; font-weight: 700; color: var(--slate-700); }
+        .label-note { color: var(--slate-400); font-weight: 400; }
+        .textarea { resize: none; min-height: 150px; }
+        .checkout-sum { border-color: var(--slate-100); }
+      `}</style>
     </AppLayout>
   );
 }

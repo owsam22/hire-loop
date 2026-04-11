@@ -46,10 +46,10 @@ export default function StudentProfile() {
           <p>${profile.skills}</p>
           
           <h2>Experience</h2>
-          <p>${profile.experience.replace(/\n/g, '<br/>') || 'No experience listed.'}</p>
+          <p>${profile.experience.replace(/\\n/g, '<br/>') || 'No experience listed.'}</p>
           
           <h2>Projects</h2>
-          <p>${profile.projects.replace(/\n/g, '<br/>') || 'No projects listed.'}</p>
+          <p>${profile.projects.replace(/\\n/g, '<br/>') || 'No projects listed.'}</p>
         </body>
       </html>
     `);
@@ -63,73 +63,92 @@ export default function StudentProfile() {
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl flex flex-col gap-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">My Profile & Resume Builder</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Manage your details and generate a professional resume PDF.</p>
+          <p className="text-slate-500 text-sm">Manage your details and generate a professional resume PDF.</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 space-y-4">
+        <div className="profile-grid">
+          <div className="profile-main-column">
             <Card>
-              <h3 className="font-semibold text-slate-800 flex items-center gap-2 mb-4">
-                <UserCircle size={18} className="text-indigo-500" />
+              <h3 className="section-title">
+                <UserCircle size={18} />
                 Personal Details
               </h3>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Full Name</label>
-                  <input type="text" name="name" value={profile.name} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-300 outline-none" />
+              <div className="form-grid">
+                <div className="input-group">
+                  <label className="label">Full Name</label>
+                  <input type="text" name="name" value={profile.name} onChange={handleChange} className="input" />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">College</label>
-                  <input type="text" name="college" value={profile.college} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-300 outline-none" />
+                <div className="input-group">
+                  <label className="label">College</label>
+                  <input type="text" name="college" value={profile.college} onChange={handleChange} className="input" />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Branch</label>
-                  <input type="text" name="branch" value={profile.branch} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-300 outline-none" />
+                <div className="input-group">
+                  <label className="label">Branch</label>
+                  <input type="text" name="branch" value={profile.branch} onChange={handleChange} className="input" />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">CGPA</label>
-                  <input type="number" name="cgpa" value={profile.cgpa} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-300 outline-none" />
+                <div className="input-group">
+                  <label className="label">CGPA</label>
+                  <input type="number" name="cgpa" value={profile.cgpa} onChange={handleChange} className="input" />
                 </div>
               </div>
             </Card>
 
             <Card>
-              <h3 className="font-semibold text-slate-800 flex items-center gap-2 mb-4">
-                <FileText size={18} className="text-indigo-500" />
+              <h3 className="section-title">
+                <FileText size={18} />
                 Resume Sections
               </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Skills (comma separated)</label>
-                  <input type="text" name="skills" value={profile.skills} onChange={handleChange} placeholder="React, Node.js, Python..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-300 outline-none" />
+              <div className="flex flex-col gap-4">
+                <div className="input-group">
+                  <label className="label">Skills (comma separated)</label>
+                  <input type="text" name="skills" value={profile.skills} onChange={handleChange} placeholder="React, Node.js, Python..." className="input" />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Experience</label>
-                  <textarea name="experience" value={profile.experience} onChange={handleChange} rows={4} placeholder="Describe your internships or work experience..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-300 outline-none resize-none" />
+                <div className="input-group">
+                  <label className="label">Experience</label>
+                  <textarea name="experience" value={profile.experience} onChange={handleChange} rows={4} placeholder="Describe your internships or work experience..." className="input textarea" />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Projects</label>
-                  <textarea name="projects" value={profile.projects} onChange={handleChange} rows={4} placeholder="List your key projects..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-300 outline-none resize-none" />
+                <div className="input-group">
+                  <label className="label">Projects</label>
+                  <textarea name="projects" value={profile.projects} onChange={handleChange} rows={4} placeholder="List your key projects..." className="input textarea" />
                 </div>
               </div>
             </Card>
           </div>
 
-          <div className="space-y-4">
-            <Card className="bg-indigo-50/50 border-indigo-100 flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-indigo-500 mb-3 shadow-sm">
+          <div className="profile-side-column">
+            <Card className="export-card">
+              <div className="export-icon-container">
                 <FileText size={28} />
               </div>
-              <h3 className="font-semibold text-indigo-900">Export Resume</h3>
-              <p className="text-xs text-indigo-700/70 mt-1 mb-4">Generate a clean, ATS-friendly PDF resume based on your details.</p>
+              <h3 className="export-title">Export Resume</h3>
+              <p className="export-subtitle">Generate a clean, ATS-friendly PDF resume based on your details.</p>
               <Button fullWidth onClick={handleDownload} icon={<Download size={16} />}>Download PDF</Button>
             </Card>
           </div>
         </div>
       </div>
+
+      <style>{`
+        .profile-grid { display: grid; grid-template-columns: 1fr 300px; gap: 1.5rem; }
+        @media (max-width: 768px) { .profile-grid { grid-template-columns: 1fr; } }
+        
+        .profile-main-column { display: flex; flex-direction: column; gap: 1.5rem; }
+        .section-title { font-size: 1rem; font-weight: 700; color: var(--slate-800); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .section-title svg { color: var(--primary); }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 480px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .textarea { resize: none; min-height: 120px; }
+        
+        .export-card { background: var(--primary-light); border-color: rgba(99, 102, 241, 0.2); text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .export-icon-container { width: 64px; height: 64px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 1rem; box-shadow: var(--shadow-sm); }
+        .export-title { font-weight: 700; color: var(--slate-800); margin-bottom: 0.5rem; }
+        .export-subtitle { font-size: 0.75rem; color: var(--slate-600); margin-bottom: 1.5rem; }
+      `}</style>
     </AppLayout>
   );
 }

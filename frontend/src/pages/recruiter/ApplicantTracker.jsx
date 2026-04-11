@@ -3,9 +3,8 @@ import AppLayout from '../../components/layout/AppLayout';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
-
 import api from '../../services/api';
-import { Mail, CheckSquare, XSquare, MessageSquare } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 export default function ApplicantTracker() {
   const [jobs, setJobs] = useState([]);
@@ -46,58 +45,58 @@ export default function ApplicantTracker() {
 
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="max-w-6xl flex flex-col gap-6">
+        <div className="flex justify-between items-center wrap-mobile gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">Applicant Tracker</h1>
-            <p className="text-slate-500 text-sm mt-0.5">Filter and manage candidates for your jobs</p>
+            <p className="text-slate-500 text-sm">Filter and manage candidates for your jobs</p>
           </div>
           <select 
             value={selectedJobId} 
             onChange={(e) => setSelectedJobId(e.target.value)} 
-            className="bg-white border border-slate-200 text-sm rounded-xl px-4 py-2 focus:ring-2 focus:ring-indigo-300 outline-none shadow-sm"
+            className="input select-job"
           >
             {jobs.map(j => <option key={j._id} value={j._id}>{j.title}</option>)}
             {jobs.length === 0 && <option value="">No jobs available</option>}
           </select>
         </div>
 
-        <Card padding={false} className="overflow-hidden">
+        <Card padding={false} className="table-card">
           {loading ? (
-             <div className="p-12 text-center text-slate-500">Loading applicants...</div>
+             <div className="loading-state">Loading applicants...</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 font-medium">
+            <div className="table-wrapper">
+              <table className="table">
+                <thead>
                   <tr>
-                    <th className="px-6 py-4">Candidate</th>
-                    <th className="px-6 py-4">College</th>
-                    <th className="px-6 py-4">CGPA</th>
-                    <th className="px-6 py-4">Match Score</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
+                    <th>Candidate</th>
+                    <th>College</th>
+                    <th>CGPA</th>
+                    <th>Match Score</th>
+                    <th>Status</th>
+                    <th className="text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody>
                   {applicants.map(app => (
-                    <tr key={app._id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4">
-                         <div className="font-semibold text-slate-800">{app.userId?.name}</div>
-                         <div className="text-xs text-slate-500">{app.userId?.email}</div>
+                    <tr key={app._id}>
+                      <td>
+                         <div className="font-bold text-slate-800">{app.userId?.name}</div>
+                         <div className="text-xs text-slate-400">{app.userId?.email}</div>
                       </td>
-                      <td className="px-6 py-4">{app.userId?.college}</td>
-                      <td className="px-6 py-4">{app.userId?.cgpa || 'N/A'}</td>
-                      <td className="px-6 py-4">
+                      <td>{app.userId?.college}</td>
+                      <td>{app.userId?.cgpa || 'N/A'}</td>
+                      <td>
                          <Badge color={app.matchScore >= 75 ? 'emerald' : 'amber'}>{app.matchScore}% Match</Badge>
                       </td>
-                      <td className="px-6 py-4 capitalize font-semibold">
+                      <td className="capitalize font-bold text-slate-700">
                          {app.status}
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="text-right flex items-center justify-end gap-2">
                          <select 
                             value={app.status} 
                             onChange={(e) => updateStatus(app._id, e.target.value)}
-                            className="bg-slate-50 border border-slate-200 text-xs rounded-lg px-2 py-1 outline-none mr-2"
+                            className="input-inline-select"
                          >
                             <option value="applied">Applied</option>
                             <option value="shortlisted">Shortlisted</option>
@@ -110,7 +109,7 @@ export default function ApplicantTracker() {
                     </tr>
                   ))}
                   {applicants.length === 0 && (
-                    <tr><td colSpan="6" className="px-6 py-8 text-center text-slate-500">No applicants for this job yet.</td></tr>
+                    <tr><td colSpan="6" className="empty-row">No applicants for this job yet.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -118,6 +117,24 @@ export default function ApplicantTracker() {
           )}
         </Card>
       </div>
+
+      <style>{`
+        .wrap-mobile { flex-wrap: wrap; }
+        .select-job { width: auto; min-width: 240px; }
+        .loading-state { padding: 4rem; text-align: center; color: var(--slate-500); }
+        .table-card { overflow: hidden; }
+        .table-wrapper { width: 100%; overflow-x: auto; }
+        .table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; }
+        .table thead { background: var(--slate-50); border-bottom: 1px solid var(--slate-100); color: var(--slate-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; }
+        .table th, .table td { padding: 1rem 1.5rem; white-space: nowrap; }
+        .table tbody tr { border-bottom: 1px solid var(--slate-50); transition: 0.2s; }
+        .table tbody tr:hover { background: var(--slate-50); }
+        .empty-row { padding: 3rem !important; text-align: center; color: var(--slate-400); }
+        .text-right { text-align: right; }
+        
+        .input-inline-select { font-size: 0.75rem; border: 1px solid var(--slate-200); background: var(--slate-50); border-radius: 6px; padding: 0.25rem 0.5rem; outline: none; }
+        .input-inline-select:focus { border-color: var(--primary); }
+      `}</style>
     </AppLayout>
   );
 }

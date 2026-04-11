@@ -37,7 +37,6 @@ export default function StudentDashboard() {
     }).catch(err => console.error(err));
   }, []);
 
-  // Compute stats dynamically
   const appliedJobs = apps.length;
   const shortlisted = apps.filter(a => a.status === 'shortlisted').length;
   const interviews = apps.filter(a => a.status === 'interview').length;
@@ -48,62 +47,53 @@ export default function StudentDashboard() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 max-w-7xl mx-auto">
-        <div className="flex items-start justify-between">
+      <div className="dash-container">
+        <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">
               Good evening, <span className="gradient-text">{user?.name?.split(' ')[0]} 👋</span>
             </h1>
-            <p className="text-slate-500 text-sm mt-0.5">{user?.college} · {user?.branch} · CGPA {user?.cgpa}</p>
+            <p className="text-slate-500 text-sm">{user?.college} · {user?.branch} · CGPA {user?.cgpa}</p>
           </div>
           <Button onClick={() => navigate('/student/resume')} icon={<Zap size={15} />} size="sm">
             Analyze Resume
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatCard label="Applied" value={appliedJobs} icon={<Briefcase size={18} />} color="blue" trendLabel="This month" trend="up" />
           <StatCard label="Shortlisted" value={shortlisted} icon={<Star size={18} />} color="indigo" trendLabel="+1 this week" trend="up" />
           <StatCard label="Interviews" value={interviews} icon={<Zap size={18} />} color="amber" />
           <StatCard label="Offers" value={offers} icon={<CheckCircle size={18} />} color="emerald" />
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="space-y-4">
-            <Card>
+        <div className="grid lg:grid-cols-3 gap-6 mb-6">
+          <div className="flex flex-col gap-6">
+            <Card className="score-card">
               <p className="text-sm font-semibold text-slate-700 mb-4">Resume Score</p>
-              <div className="flex items-center gap-5">
+              <div className="flex items-center gap-6">
                 <ScoreRing score={user?.resumeScore || 0} size={100} />
-                <div className="space-y-2 flex-1">
-                  <div>
-                    <p className="text-xs text-slate-500 mb-1">ATS Compatibility</p>
-                    <ProgressBar value={72} color="indigo" size="sm" showLabel />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 mb-1">Keyword Match</p>
-                    <ProgressBar value={58} color="amber" size="sm" showLabel />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 mb-1">Formatting</p>
-                    <ProgressBar value={90} color="emerald" size="sm" showLabel />
-                  </div>
+                <div className="flex-1 flex flex-col gap-3">
+                  <ProgressBar label="ATS Compatibility" value={72} color="indigo" size="sm" showLabel />
+                  <ProgressBar label="Keyword Match" value={58} color="amber" size="sm" showLabel />
+                  <ProgressBar label="Formatting" value={90} color="emerald" size="sm" showLabel />
                 </div>
               </div>
-              <Button fullWidth variant="outline" size="sm" className="mt-4" onClick={() => navigate('/student/resume')} icon={<ArrowRight size={14} />}>
+              <Button fullWidth variant="outline" size="sm" className="mt-6" onClick={() => navigate('/student/resume')} icon={<ArrowRight size={14} />}>
                 View Full Analysis
               </Button>
             </Card>
 
             <Card>
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-slate-700">Profile</p>
+              <div className="flex justify-between items-center mb-4">
+                <p className="text-sm font-semibold text-slate-700">Profile Completion</p>
                 <Badge color="amber">85% done</Badge>
               </div>
               <ProgressBar value={85} color="gradient" size="md" />
-              <ul className="mt-3 space-y-1.5">
+              <ul className="todo-list mt-4">
                 {['Add 2 projects', 'Complete skills section', 'Add internship experience'].map(t => (
-                  <li key={t} className="flex items-center gap-2 text-xs text-slate-500">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+                  <li key={t} className="todo-item">
+                    <span className="todo-dot" />
                     {t}
                   </li>
                 ))}
@@ -111,31 +101,31 @@ export default function StudentDashboard() {
             </Card>
           </div>
 
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 flex flex-col gap-6">
             <Card padding={false}>
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                <p className="font-semibold text-slate-800">My Applications</p>
+              <div className="card-header flex justify-between items-center p-5 border-b">
+                <p className="font-semibold text-slate-800">Recent Applications</p>
                 <Button variant="ghost" size="xs" onClick={() => navigate('/student/applications')}>View all</Button>
               </div>
-              <div className="divide-y divide-slate-50">
+              <div className="list-container">
                 {apps.slice(0, 3).map(app => {
                   const cfg = STATUS_CONFIG[app.status];
                   const IconComp = cfg.icon;
                   return (
-                    <div key={app._id} className="px-5 py-3.5 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style={{ backgroundColor: app.jobId?.logoColor || '#6366f1' }}>
+                    <div key={app._id} className="list-item p-4 flex items-center gap-4 border-b">
+                      <div className="item-logo" style={{ backgroundColor: app.jobId?.logoColor || 'var(--primary)' }}>
                         {app.jobId?.logo || '🚀'}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-slate-800 truncate">{app.jobId?.title}</p>
                         <p className="text-xs text-slate-400">{app.jobId?.company} · {app.jobId?.location}</p>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="hidden sm:flex items-center gap-1.5">
-                          <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${app.matchScore}%` }} />
-                          </div>
-                          <span className="text-xs font-semibold text-indigo-600">{app.matchScore}%</span>
+                      <div className="flex items-center gap-4">
+                        <div className="hidden-mobile flex items-center gap-2">
+                           <div className="mini-track">
+                             <div className="mini-bar" style={{ width: `${app.matchScore}%` }} />
+                           </div>
+                           <span className="text-xs font-bold text-primary">{app.matchScore}%</span>
                         </div>
                         <Badge color={cfg.color}>
                           <IconComp size={11} />
@@ -145,25 +135,25 @@ export default function StudentDashboard() {
                     </div>
                   );
                 })}
-                {apps.length === 0 && <div className="p-5 text-sm text-slate-500">No applications yet.</div>}
+                {apps.length === 0 && <div className="p-10 text-center text-sm text-slate-500">No applications yet.</div>}
               </div>
             </Card>
 
             <Card>
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex justify-between items-center mb-4">
                 <p className="font-semibold text-slate-800">Skill Gap Analysis</p>
                 <Badge color="red">{missingSkills.length} missing</Badge>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-xs font-medium text-emerald-600 mb-2 flex items-center gap-1"><CheckCircle size={12} /> Your Skills</p>
-                  <div className="flex flex-wrap gap-1.5">
+                  <p className="skill-label text-success mb-2"><CheckCircle size={12} /> Your Strengths</p>
+                  <div className="flex flex-wrap gap-2">
                     {skills.map(s => <Badge key={s} color="emerald">{s}</Badge>)}
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-red-500 mb-2 flex items-center gap-1"><XCircle size={12} /> Missing Skills</p>
-                  <div className="flex flex-wrap gap-1.5">
+                  <p className="skill-label text-error mb-2"><XCircle size={12} /> Focus Areas</p>
+                  <div className="flex flex-wrap gap-2">
                     {missingSkills.map(s => <Badge key={s} color="red">{s}</Badge>)}
                   </div>
                 </div>
@@ -172,63 +162,53 @@ export default function StudentDashboard() {
           </div>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <p className="font-semibold text-slate-800">Top Matching Jobs</p>
+        <section>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold text-slate-800">Top Matching Opportunities</h3>
             <Button variant="ghost" size="xs" onClick={() => navigate('/student/jobs')} icon={<ArrowRight size={14} />}>Browse all</Button>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4 lg:grid-cols-3">
             {jobs.slice(0, 3).map(job => {
-              // Stub match score since jobs API doesn't compute match score for a list yet
-              const matchScore = Math.floor(Math.random() * 30) + 70;
+              const matchScore = 85; 
               return (
-                <div key={job._id} onClick={() => navigate(`/student/jobs`)} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 card-hover cursor-pointer">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style={{ backgroundColor: job.logoColor || '#6366f1' }}>
+                <Card key={job._id} hover className="mini-job-card" onClick={() => navigate(`/student/jobs`)}>
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="item-logo sm" style={{ backgroundColor: job.logoColor || 'var(--primary)' }}>
                       {job.logo || '🚀'}
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-slate-800 leading-tight truncate">{job.title}</p>
-                      <p className="text-xs text-slate-400">{job.company} · {job.location}</p>
+                    <div>
+                      <p className="text-sm font-bold text-slate-800 truncate">{job.title}</p>
+                      <p className="text-xs text-slate-500 truncate">{job.company}</p>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-600">{job.salary}</span>
-                    <div className="flex items-center gap-1.5">
-                      <TrendingUp size={12} className={matchScore >= 75 ? 'text-emerald-500' : 'text-amber-500'} />
-                      <span className={`text-xs font-bold ${matchScore >= 75 ? 'text-emerald-600' : 'text-amber-600'}`}>{matchScore}% match</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-slate-600 font-medium">{job.salary}</span>
+                    <div className="flex items-center gap-1">
+                      <TrendingUp size={12} className="text-success" />
+                      <span className="text-xs font-bold text-success">{matchScore}%</span>
                     </div>
                   </div>
-                  <div className="mt-2 h-1 bg-slate-100 rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full ${matchScore >= 75 ? 'bg-emerald-400' : 'bg-amber-400'}`} style={{ width: `${matchScore}%` }} />
-                  </div>
-                </div>
+                </Card>
               );
             })}
           </div>
-        </div>
-
-        <Card>
-          <p className="font-semibold text-slate-800 mb-4">📢 Announcements</p>
-          <div className="space-y-3">
-            {MOCK_ANNOUNCEMENTS.map(a => {
-              const tagColor = a.tag === 'urgent' ? 'red' : a.tag === 'event' ? 'purple' : 'blue';
-              return (
-                <div key={a.id} className="flex gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm font-semibold text-slate-800">{a.title}</p>
-                      <Badge color={tagColor}>{a.tag}</Badge>
-                    </div>
-                    <p className="text-xs text-slate-500">{a.body}</p>
-                  </div>
-                  <span className="text-xs text-slate-400 flex-shrink-0">{a.date}</span>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
+        </section>
       </div>
+
+      <style>{`
+        .dash-container { max-width: 1200px; margin: 0 auto; }
+        .todo-list { list-style: none; }
+        .todo-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--slate-500); margin-bottom: 0.5rem; }
+        .todo-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--warning); }
+        .item-logo { width: 40px; height: 40px; border-radius: var(--rounded-lg); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; flex-shrink: 0; }
+        .item-logo.sm { width: 32px; height: 32px; font-size: 14px; }
+        .mini-track { width: 60px; height: 4px; background: var(--slate-100); border-radius: 99px; overflow: hidden; }
+        .mini-bar { height: 100%; background: var(--primary); }
+        .skill-label { font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.25rem; }
+        .text-success { color: var(--success); }
+        .text-error { color: var(--error); }
+        .mini-job-card { padding: 1.25rem; cursor: pointer; }
+      `}</style>
     </AppLayout>
   );
 }

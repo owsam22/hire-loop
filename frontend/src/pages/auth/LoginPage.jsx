@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import { Sparkles, ArrowRight, UserCircle, KeyRound, AlertCircle } from 'lucide-react';
 
@@ -19,7 +19,6 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      // Wait for auth state to update, then AppRoutes redirects automatically
     } catch (err) {
       setError(err.message || 'Login failed');
     } finally {
@@ -29,61 +28,59 @@ export default function LoginPage() {
 
   const autoFill = (roleEmail) => {
     setEmail(roleEmail);
-    setPassword('password123'); // From seed data
+    setPassword('password123');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-100 rounded-full blur-3xl opacity-60" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-violet-100 rounded-full blur-3xl opacity-60" />
+    <div className="login-page">
+      <div className="blobs">
+        <div className="blob blob-1"></div>
+        <div className="blob blob-2"></div>
       </div>
 
-      <div className="relative w-full max-w-md">
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-xl shadow-indigo-200 mb-4">
-            <span className="text-white font-bold text-xl">HL</span>
-          </div>
-          <h1 className="text-3xl font-bold text-slate-800">HireLoop</h1>
-          <p className="text-slate-500 mt-1 text-sm flex items-center gap-1">
-            <Sparkles size={13} className="text-indigo-400" />
+      <div className="login-container">
+        <div className="login-header">
+          <div className="login-logo">HL</div>
+          <h1>HireLoop</h1>
+          <p className="login-subtitle">
+            <Sparkles size={13} />
             AI-Powered Campus Recruitment
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/80 border border-slate-100 p-6 sm:p-8">
+        <div className="login-card">
           {error && (
-             <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-sm flex items-center gap-2">
+             <div className="alert-error">
                 <AlertCircle size={16} /> {error}
              </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
-              <div className="relative">
-                <UserCircle size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <form onSubmit={handleLogin} className="login-form">
+            <div className="input-group">
+              <label className="label">Email Address</label>
+              <div className="input-wrapper">
+                <UserCircle size={18} className="input-icon" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 focus:outline-none transition-all"
+                  className="input"
                   placeholder="name@example.com"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
-              <div className="relative">
-                <KeyRound size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <div className="input-group">
+              <label className="label">Password</label>
+              <div className="input-wrapper">
+                <KeyRound size={18} className="input-icon" />
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 focus:outline-none transition-all"
+                  className="input"
                   placeholder="••••••••"
                 />
               </div>
@@ -93,7 +90,7 @@ export default function LoginPage() {
               type="submit"
               fullWidth
               size="lg"
-              className="mt-2"
+              className="mt-6"
               loading={loading}
               icon={!loading && <ArrowRight size={16} />}
             >
@@ -101,16 +98,41 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-8 border-t border-slate-100 pt-6">
-            <p className="text-xs text-slate-400 text-center mb-3 uppercase tracking-wider font-semibold">Demo Auto-Fill</p>
-            <div className="grid grid-cols-3 gap-2">
-               <Button variant="secondary" size="xs" onClick={() => autoFill('arjun@student.edu')}>Student</Button>
-               <Button variant="secondary" size="xs" onClick={() => autoFill('priya@google.com')}>Recruiter</Button>
-               <Button variant="secondary" size="xs" onClick={() => autoFill('admin@placement.edu')}>Admin</Button>
+          <div className="mt-6 text-center text-sm">
+            <span className="text-slate-400">Don't have an account?</span>{' '}
+            <Link to="/signup" className="font-bold text-primary hover:underline">Create Account</Link>
+          </div>
+
+          <div className="demo-footer">
+            <p className="demo-title">Demo Auto-Fill</p>
+            <div className="demo-grid">
+               <Button variant="secondary" size="sm" onClick={() => autoFill('arjun@student.edu')}>Student</Button>
+               <Button variant="secondary" size="sm" onClick={() => autoFill('priya@google.com')}>Recruiter</Button>
+               <Button variant="secondary" size="sm" onClick={() => autoFill('admin@placement.edu')}>Admin</Button>
             </div>
           </div>
         </div>
       </div>
+
+      <style>{`
+        .login-page { min-height: 100vh; background: var(--slate-50); display: flex; align-items: center; justify-content: center; padding: 1rem; position: relative; overflow: hidden; }
+        .blobs .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; pointer-events: none; }
+        .blob-1 { width: 400px; height: 400px; background: var(--primary-light); top: -200px; right: -200px; }
+        .blob-2 { width: 400px; height: 400px; background: #ede9fe; bottom: -200px; left: -200px; }
+        .login-container { position: relative; width: 100%; max-width: 440px; }
+        .login-header { text-align: center; margin-bottom: 2rem; }
+        .login-logo { width: 56px; height: 56px; border-radius: var(--rounded-xl); background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 20px; margin: 0 auto 1rem; box-shadow: var(--shadow-indigo); }
+        .login-header h1 { font-size: 1.875rem; font-weight: 800; color: var(--slate-800); }
+        .login-subtitle { color: var(--slate-500); font-size: 0.875rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.25rem; }
+        .login-card { background: var(--white); border-radius: 1.5rem; padding: 2.5rem; border: 1px solid var(--slate-100); box-shadow: var(--shadow-xl); }
+        .alert-error { background: #fee2e2; color: #b91c1c; padding: 0.75rem; border-radius: 0.75rem; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .input-wrapper { position: relative; }
+        .input-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--slate-400); }
+        .input-wrapper .input { padding-left: 2.5rem; }
+        .demo-footer { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--slate-100); }
+        .demo-title { font-size: 0.75rem; font-weight: 700; color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; text-align: center; }
+        .demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+      `}</style>
     </div>
   );
 }

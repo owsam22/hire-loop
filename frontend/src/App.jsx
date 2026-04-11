@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Auth
 import LoginPage from './pages/auth/LoginPage';
+import SignupPage from './pages/auth/SignupPage';
 import LandingPage from './pages/LandingPage';
 
 // Student pages
@@ -66,6 +67,16 @@ function AppRoutes() {
           user
             ? <Navigate to={`/${user.role}`} replace />
             : <LoginPage />
+        }
+      />
+
+      {/* Signup Page */}
+      <Route
+        path="/signup"
+        element={
+          user
+            ? <Navigate to={`/${user.role}`} replace />
+            : <SignupPage />
         }
       />
 
